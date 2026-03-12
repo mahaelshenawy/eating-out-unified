@@ -12,6 +12,9 @@ class EatingOutApp {
         this.currentScenarioIndex = 0;
         this.orderItems = [];
         this.orderTotal = 0;
+        this.currentDetectiveIndex = 0;
+        this.currentQuizIndex = 0;
+        this.quizAnswers = {};
         
         this.init();
     }
@@ -26,6 +29,10 @@ class EatingOutApp {
         this.renderMenuPlanning();
         this.renderPronunciationPractice();
         this.renderActivities();
+        this.renderRestaurantDetective();
+        this.renderMealTimes();
+        this.renderMenuLanguageQuiz();
+        this.renderCheatSheets();
         this.setupModals();
         this.updateProgress();
         
@@ -790,7 +797,7 @@ class EatingOutApp {
 
     updateProgress() {
         // Calculate progress based on sections visited and activities completed
-        const sections = ['restaurant-types', 'menu-vocabulary', 'general-vocabulary', 'conversations', 'scenarios', 'menu-planning', 'pronunciation', 'activities'];
+        const sections = ['restaurant-types', 'menu-vocabulary', 'general-vocabulary', 'conversations', 'scenarios', 'menu-planning', 'pronunciation', 'activities', 'restaurant-detective', 'meal-times', 'menu-language-quiz', 'cheat-sheets'];
         const currentIndex = sections.indexOf(this.currentSection);
         const progress = ((currentIndex + 1) / sections.length) * 100;
         
@@ -816,6 +823,257 @@ class EatingOutApp {
     startMenuBuilder() {
         this.showSection('menu-planning');
         document.querySelector('[data-section="menu-planning"]').click();
+    }
+
+    // Restaurant Detective Activity
+    renderRestaurantDetective() {
+        if (typeof restaurantDetectiveQuestions === 'undefined') return;
+        
+        this.currentDetectiveIndex = 0;
+        this.displayDetectiveQuestion(0);
+        
+        const prevBtn = document.getElementById('prevDetective');
+        const nextBtn = document.getElementById('nextDetective');
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (this.currentDetectiveIndex > 0) {
+                    this.currentDetectiveIndex--;
+                    this.displayDetectiveQuestion(this.currentDetectiveIndex);
+                }
+            });
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (this.currentDetectiveIndex < restaurantDetectiveQuestions.length - 1) {
+                    this.currentDetectiveIndex++;
+                    this.displayDetectiveQuestion(this.currentDetectiveIndex);
+                }
+            });
+        }
+    }
+    
+    displayDetectiveQuestion(index) {
+        if (typeof restaurantDetectiveQuestions === 'undefined' || !restaurantDetectiveQuestions[index]) return;
+        
+        const question = restaurantDetectiveQuestions[index];
+        const questionEl = document.getElementById('detectiveQuestion');
+        const optionsEl = document.getElementById('detectiveOptions');
+        const counterEl = document.getElementById('detectiveCounter');
+        const feedbackEl = document.getElementById('detectiveFeedback');
+        
+        if (questionEl) questionEl.innerHTML = `<strong>Question ${index + 1}:</strong> ${question.description}`;
+        
+        if (optionsEl) {
+            let optionsHtml = '';
+            question.options.forEach((option, idx) => {
+                optionsHtml += `
+                    <div class="detective-option" onclick="app.selectDetectiveAnswer(${index}, '${option}')">
+                        <span>${option}</span>
+                    </div>
+                `;
+            });
+            optionsEl.innerHTML = optionsHtml;
+        }
+        
+        if (counterEl) counterEl.textContent = `${index + 1} / ${restaurantDetectiveQuestions.length}`;
+        feedbackEl.innerHTML = '';
+    }
+    
+    selectDetectiveAnswer(questionIndex, selectedAnswer) {
+        if (typeof restaurantDetectiveQuestions === 'undefined') return;
+        
+        const question = restaurantDetectiveQuestions[questionIndex];
+        const feedbackEl = document.getElementById('detectiveFeedback');
+        const optionsEl = document.getElementById('detectiveOptions');
+        
+        const isCorrect = selectedAnswer === question.answer;
+        
+        optionsEl.querySelectorAll('.detective-option').forEach((el) => {
+            if (el.textContent.includes(selectedAnswer)) {
+                el.classList.add(isCorrect ? 'correct' : 'incorrect');
+            }
+            if (el.textContent.includes(question.answer)) {
+                el.classList.add('correct');
+            }
+        });
+        
+        feedbackEl.innerHTML = `
+            <div class="feedback-box ${isCorrect ? 'correct' : 'incorrect'}">
+                <strong>${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</strong>
+                <p>The correct answer is: <strong>${question.answer}</strong></p>
+            </div>
+        `;
+    }
+
+    // Meal Times Matching Activity
+    renderMealTimes() {
+        if (typeof mealTimesMatching === 'undefined') return;
+        
+        const container = document.getElementById('mealTimesContent');
+        if (!container) return;
+        
+        let html = '';
+        mealTimesMatching.forEach((meal, idx) => {
+            html += `
+                <div class="meal-time-item">
+                    <div class="meal-time-name">${meal.mealName}</div>
+                    <select class="meal-time-select" onchange="app.checkMealTimeAnswer(${idx}, this.value)">
+                        <option value="">-- Select the correct description --</option>
+                        <option value="A">A. Light late-night food served after normal dinner hours</option>
+                        <option value="B">B. Mid-day meal break, often 11 a.m.–2 p.m.</option>
+                        <option value="C">C. Early-evening discount period (often 4–6 p.m.)</option>
+                        <option value="D">D. Main evening meal (6–9 p.m.)</option>
+                        <option value="E">E. Light snack time (2–4 p.m.)</option>
+                        <option value="F">F. First meal of the day (6–9 a.m.)</option>
+                        <option value="G">G. Leisurely late-morning meal (10 a.m.–1 p.m., often weekends)</option>
+                    </select>
+                    <div class="meal-time-feedback" id="feedback-${idx}"></div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+    
+    checkMealTimeAnswer(index, selectedAnswer) {
+        if (typeof mealTimesMatching === 'undefined') return;
+        
+        const meal = mealTimesMatching[index];
+        const feedbackEl = document.getElementById(`feedback-${index}`);
+        const isCorrect = selectedAnswer === meal.correctAnswer;
+        
+        feedbackEl.classList.add('show');
+        feedbackEl.classList.add(isCorrect ? 'correct' : 'incorrect');
+        feedbackEl.innerHTML = isCorrect 
+            ? `<strong>✓ Correct!</strong> ${meal.description}`
+            : `<strong>✗ Incorrect</strong> The correct answer is: ${meal.correctAnswer}. ${meal.description}`;
+    }
+
+    // Menu Language Quiz
+    renderMenuLanguageQuiz() {
+        if (typeof menuLanguageQuiz === 'undefined') return;
+        
+        this.currentQuizIndex = 0;
+        this.quizAnswers = {};
+        this.displayQuizQuestion(0);
+    }
+    
+    displayQuizQuestion(index) {
+        if (typeof menuLanguageQuiz === 'undefined' || !menuLanguageQuiz[index]) return;
+        
+        const question = menuLanguageQuiz[index];
+        const quizCard = document.getElementById('quizCard');
+        const progressEl = document.getElementById('quizProgress');
+        
+        let optionsHtml = '';
+        question.options.forEach((option, idx) => {
+            optionsHtml += `
+                <div class="quiz-option" onclick="app.selectQuizAnswer(${index}, ${idx})">
+                    <span>${String.fromCharCode(65 + idx)}. ${option}</span>
+                </div>
+            `;
+        });
+        
+        quizCard.innerHTML = `
+            <div class="quiz-question">${index + 1}. ${question.question}</div>
+            <div class="quiz-options">${optionsHtml}</div>
+            <div id="quiz-explanation-${index}"></div>
+        `;
+        
+        const progress = Math.round((index / menuLanguageQuiz.length) * 100);
+        progressEl.innerHTML = `
+            <strong>Progress: ${index + 1} / ${menuLanguageQuiz.length}</strong>
+            <div class="quiz-progress-bar">
+                <div class="quiz-progress-fill" style="width: ${progress}%"></div>
+            </div>
+        `;
+    }
+    
+    selectQuizAnswer(questionIndex, optionIndex) {
+        if (typeof menuLanguageQuiz === 'undefined') return;
+        
+        const question = menuLanguageQuiz[questionIndex];
+        const isCorrect = optionIndex === question.correctAnswer;
+        const explanationEl = document.getElementById(`quiz-explanation-${questionIndex}`);
+        
+        this.quizAnswers[questionIndex] = optionIndex;
+        
+        document.querySelectorAll('.quiz-option').forEach((el, idx) => {
+            el.classList.remove('selected', 'correct', 'incorrect');
+            if (idx === optionIndex) {
+                el.classList.add('selected');
+                if (isCorrect) el.classList.add('correct');
+                else el.classList.add('incorrect');
+            }
+            if (idx === question.correctAnswer) {
+                el.classList.add('correct');
+            }
+        });
+        
+        explanationEl.innerHTML = `
+            <div class="quiz-explanation">
+                <strong>${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</strong>
+                <p>${question.explanation}</p>
+            </div>
+        `;
+        
+        // Auto-advance to next question after 2 seconds
+        setTimeout(() => {
+            if (this.currentQuizIndex < menuLanguageQuiz.length - 1) {
+                this.currentQuizIndex++;
+                this.displayQuizQuestion(this.currentQuizIndex);
+            }
+        }, 2000);
+    }
+
+    // Cheat Sheets
+    renderCheatSheets() {
+        if (typeof vocabularyCheatSheet === 'undefined') return;
+        
+        const tabs = document.querySelectorAll('.cheat-sheet-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.cheat-sheet-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                this.displayCheatSheet(tab.dataset.sheet);
+            });
+        });
+        
+        this.displayCheatSheet('vocabulary');
+    }
+    
+    displayCheatSheet(sheetType) {
+        const contentEl = document.getElementById('cheatSheetContent');
+        if (!contentEl) return;
+        
+        let html = '';
+        
+        if (sheetType === 'vocabulary' && typeof vocabularyCheatSheet !== 'undefined') {
+            Object.entries(vocabularyCheatSheet).forEach(([category, items]) => {
+                html += `
+                    <div class="cheat-sheet-section">
+                        <div class="cheat-sheet-title">${category}</div>
+                        <div class="cheat-sheet-items">
+                            ${items.map(item => `<div class="cheat-sheet-item">${item}</div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+        } else if (sheetType === 'speaking' && typeof speakingLanguageCheatSheet !== 'undefined') {
+            Object.entries(speakingLanguageCheatSheet).forEach(([category, items]) => {
+                html += `
+                    <div class="cheat-sheet-section">
+                        <div class="cheat-sheet-title">${category}</div>
+                        <div class="cheat-sheet-items">
+                            ${items.map(item => `<div class="cheat-sheet-item">• ${item}</div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        contentEl.innerHTML = html;
     }
 
     startRolePlay() {

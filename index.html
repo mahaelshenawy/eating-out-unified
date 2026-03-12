@@ -57,6 +57,22 @@
                 <i class="fas fa-gamepad"></i>
                 Activities
             </button>
+            <button class="nav-btn" data-section="restaurant-detective">
+                <i class="fas fa-search"></i>
+                Detective
+            </button>
+            <button class="nav-btn" data-section="meal-times">
+                <i class="fas fa-clock"></i>
+                Meal Times
+            </button>
+            <button class="nav-btn" data-section="menu-language-quiz">
+                <i class="fas fa-question-circle"></i>
+                Menu Quiz
+            </button>
+            <button class="nav-btn" data-section="cheat-sheets">
+                <i class="fas fa-book"></i>
+                Cheat Sheets
+            </button>
         </nav>
 
         <!-- Main Content -->
@@ -280,6 +296,68 @@
                     <!-- Activity cards will be populated by JavaScript -->
                 </div>
             </section>
+
+            <!-- Restaurant Detective Section -->
+            <section id="restaurant-detective" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-search"></i> Restaurant Detective</h2>
+                    <p>Read the description and guess what type of restaurant it is!</p>
+                </div>
+                
+                <div class="detective-container">
+                    <div class="detective-card">
+                        <div class="detective-question" id="detectiveQuestion"></div>
+                        <div class="detective-options" id="detectiveOptions"></div>
+                        <div class="detective-feedback" id="detectiveFeedback"></div>
+                        <div class="detective-controls">
+                            <button class="btn btn-secondary" id="prevDetective">Previous</button>
+                            <span class="detective-counter" id="detectiveCounter">1 / 12</span>
+                            <button class="btn btn-primary" id="nextDetective">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Meal Times Section -->
+            <section id="meal-times" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-clock"></i> Meal Times Matching</h2>
+                    <p>Match meal names with their descriptions</p>
+                </div>
+                
+                <div class="meal-times-container">
+                    <div id="mealTimesContent"></div>
+                </div>
+            </section>
+
+            <!-- Menu Language Quiz Section -->
+            <section id="menu-language-quiz" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-question-circle"></i> Menu Language Quiz</h2>
+                    <p>Test your knowledge of restaurant menu terms</p>
+                </div>
+                
+                <div class="quiz-container">
+                    <div class="quiz-card" id="quizCard"></div>
+                    <div class="quiz-progress" id="quizProgress"></div>
+                </div>
+            </section>
+
+            <!-- Cheat Sheets Section -->
+            <section id="cheat-sheets" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-book"></i> Vocabulary & Speaking Cheat Sheets</h2>
+                    <p>Quick reference guides for restaurant vocabulary and speaking phrases</p>
+                </div>
+                
+                <div class="cheat-sheets-container">
+                    <div class="cheat-sheet-tabs">
+                        <button class="cheat-sheet-tab active" data-sheet="vocabulary">Vocabulary Cheat Sheet</button>
+                        <button class="cheat-sheet-tab" data-sheet="speaking">Speaking Language Cheat Sheet</button>
+                    </div>
+                    <div class="cheat-sheet-content" id="cheatSheetContent"></div>
+                </div>
+            </section>
         </main>
 
         <!-- Audio Player (Hidden) -->
@@ -338,6 +416,7 @@
     <script src="vocabulary-data.js"></script>
     <script src="conversations-data.js"></script>
     <script src="scenarios-data.js"></script>
+    <script src="worksheet-activities.js"></script>
     <script src="audio-generator.js"></script>
     <script src="speech-recognition.js"></script>
     <script src="script.js"></script>
