@@ -809,15 +809,121 @@ class EatingOutApp {
 
     // Activity methods
     startVocabularyMatching() {
-        alert('Vocabulary Matching game coming soon! This will be an interactive drag-and-drop game.');
+        this.showSection('activities');
+        const container = document.querySelector('.activities-grid');
+        if (!container) return;
+        
+        const words = [
+            { word: 'Appetizer', definition: 'A small dish served before the main course' },
+            { word: 'Entrée', definition: 'The main course of a meal' },
+            { word: 'Dessert', definition: 'A sweet course served at the end of a meal' },
+            { word: 'Beverage', definition: 'Any drink (water, coffee, tea, juice, alcohol)' },
+            { word: 'Vegetarian', definition: 'No meat, but may include dairy and eggs' },
+            { word: 'Vegan', definition: 'No animal products at all' }
+        ];
+        
+        const shuffledDefinitions = [...words].sort(() => Math.random() - 0.5);
+        
+        let html = '<div style="max-width: 800px; margin: 0 auto;"><h3 style="font-size: 1.5rem; margin-bottom: 2rem;">Match Words with Definitions</h3>';
+        words.forEach((item, idx) => {
+            html += `
+                <div style="background: white; padding: 1.5rem; margin-bottom: 1rem; border-radius: 10px; border-left: 4px solid #667eea;">
+                    <div style="font-weight: 600; color: #2d3748; margin-bottom: 0.5rem;">${item.word}</div>
+                    <select class="matching-select" onchange="app.checkMatching(${idx}, this.value)" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        <option value="">-- Select Definition --</option>
+                        ${shuffledDefinitions.map((def, i) => `<option value="${def.word}">${def.definition}</option>`).join('')}
+                    </select>
+                    <span class="matching-result" id="match-${idx}" style="margin-left: 1rem; font-weight: 600;"></span>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+    
+    checkMatching(index, selected) {
+        const words = [
+            'Appetizer', 'Entrée', 'Dessert', 'Beverage', 'Vegetarian', 'Vegan'
+        ];
+        const resultEl = document.getElementById(`match-${index}`);
+        const isCorrect = selected === words[index];
+        resultEl.textContent = isCorrect ? '✓ Correct!' : '✗ Incorrect';
+        resultEl.style.color = isCorrect ? '#38a169' : '#e53e3e';
     }
 
     startQuickQuiz() {
-        alert('Quick Quiz coming soon! This will be a timed multiple-choice quiz.');
+        this.showSection('activities');
+        const container = document.querySelector('.activities-grid');
+        if (!container) return;
+        
+        const quizQuestions = [
+            { q: 'What does "à la carte" mean?', a: 'Choose and pay per item', options: ['One price for all', 'Choose and pay per item', 'Buffet only'] },
+            { q: 'What is a "set menu"?', a: 'Multiple courses for one price', options: ['One item only', 'Multiple courses for one price', 'Kids items only'] },
+            { q: 'What does "happy hour" mean?', a: 'Special discounts during certain hours', options: ['Free drinks all day', 'Special discounts during certain hours', 'Only desserts'] },
+            { q: 'What does "vegan" mean?', a: 'No animal products at all', options: ['No meat but eggs ok', 'No animal products at all', 'Low fat'] }
+        ];
+        
+        let html = '<div style="max-width: 800px; margin: 0 auto;"><h3 style="font-size: 1.5rem; margin-bottom: 2rem;">Quick Quiz</h3>';
+        quizQuestions.forEach((item, idx) => {
+            html += `
+                <div style="background: white; padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <p style="font-weight: 600; color: #2d3748; margin-bottom: 1rem;"><strong>${idx + 1}. ${item.q}</strong></p>
+                    ${item.options.map((opt, i) => `
+                        <label style="display: block; margin-bottom: 0.75rem; cursor: pointer;">
+                            <input type="radio" name="q${idx}" value="${opt}" onchange="app.checkQuiz(${idx}, '${item.a}', this.value)" style="margin-right: 0.5rem;">
+                            <span style="color: #4a5568;">${opt}</span>
+                        </label>
+                    `).join('')}
+                    <span class="quiz-result" id="quiz-${idx}" style="display: block; margin-top: 1rem; font-weight: 600;"></span>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+    
+    checkQuiz(index, correct, selected) {
+        const resultEl = document.getElementById(`quiz-${index}`);
+        const isCorrect = selected === correct;
+        resultEl.textContent = isCorrect ? '✓ Correct!' : '✗ Incorrect';
+        resultEl.style.color = isCorrect ? '#38a169' : '#e53e3e';
     }
 
     startListeningPractice() {
-        alert('Listening Practice coming soon! This will play audio and ask you to identify words.');
+        this.showSection('activities');
+        const container = document.querySelector('.activities-grid');
+        if (!container) return;
+        
+        const words = ['Appetizer', 'Beverage', 'Dessert', 'Vegetarian', 'Spicy', 'Buffet'];
+        const randomWord = words[Math.floor(Math.random() * words.length)];
+        
+        let html = `
+            <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                <h3 style="font-size: 1.5rem; margin-bottom: 2rem;">Listening Practice</h3>
+                <p style="color: #4a5568; margin-bottom: 2rem;">Click the button to hear a word, then select what you heard:</p>
+                <button class="btn btn-primary" onclick="app.playListeningWord('${randomWord}')" style="font-size: 1.1rem; padding: 1rem 2rem; margin-bottom: 2rem;">🔊 Play Word</button>
+                <div class="listening-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    ${words.map(word => `
+                        <button class="btn btn-secondary" onclick="app.checkListening('${word}', '${randomWord}')" style="padding: 1rem;">
+                            ${word}
+                        </button>
+                    `).join('')}
+                </div>
+                <div class="listening-result" id="listening-result" style="font-weight: 600; font-size: 1.1rem;"></div>
+            </div>
+        `;
+        container.innerHTML = html;
+    }
+    
+    playListeningWord(word) {
+        audioGenerator.playAudio(word, { rate: 0.8 });
+    }
+    
+    checkListening(selected, correct) {
+        const resultEl = document.getElementById('listening-result');
+        const isCorrect = selected === correct;
+        resultEl.textContent = isCorrect ? `✓ Correct! The word was "${correct}"` : `✗ Incorrect. The word was "${correct}"`;
+        resultEl.style.color = isCorrect ? '#38a169' : '#e53e3e';
     }
 
     startMenuBuilder() {

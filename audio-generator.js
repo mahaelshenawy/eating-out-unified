@@ -22,28 +22,24 @@ class AudioGenerator {
     selectBestVoice() {
         const voices = speechSynthesis.getVoices();
         
-        // Prefer high-quality natural English voices
+        // Prefer Google US English Female as primary voice
         const preferredVoices = [
-            'Google UK English Female',
+            'Google US English Female',
             'Google US English',
-            'Google UK English Male',
             'Microsoft Zira - English (United States)',
-            'Microsoft David - English (United States)',
-            'Microsoft Mark - English (United States)',
             'Microsoft Zira Desktop - English (United States)',
-            'Alex',
             'Samantha',
             'Karen',
+            'Victoria',
+            'Microsoft David - English (United States)',
             'Daniel',
-            'Moira',
-            'Fiona',
-            'Victoria'
+            'Alex'
         ];
 
         // Find the best available voice
         this.selectedVoice = null;
         for (const preferred of preferredVoices) {
-            const voice = voices.find(v => v.name.includes(preferred) || v.name === preferred);
+            const voice = voices.find(v => v.name === preferred || v.name.includes(preferred));
             if (voice) {
                 this.selectedVoice = voice;
                 break;
@@ -57,6 +53,37 @@ class AudioGenerator {
 
         console.log('Selected voice:', this.selectedVoice?.name || 'Default');
         console.log('Available voices:', voices.filter(v => v.lang.startsWith('en')).map(v => v.name));
+    }
+    
+    getVoiceForSpeaker(speaker) {
+        const voices = speechSynthesis.getVoices();
+        
+        // Map speakers to different voices
+        const voiceMap = {
+            'Host': 'Google US English Female',
+            'Server': 'Google US English',
+            'Customer': 'Google US English Female',
+            'Sarah': 'Google US English Female',
+            'Jennifer': 'Google US English Female',
+            'Mike': 'Google US English',
+            'Tom': 'Google US English',
+            'Lisa': 'Google US English Female',
+            'Employee': 'Google US English Female',
+            'Mom': 'Google US English Female',
+            'Dad': 'Google US English',
+            'Kid 1': 'Google US English Female',
+            'Kid 2': 'Google US English',
+            'Guest 1': 'Google US English Female',
+            'Guest 2': 'Google US English',
+            'Guest 3': 'Google US English Female',
+            'Guest 4': 'Google US English',
+            'Guest 5': 'Google US English Female',
+            'Guest 6': 'Google US English'
+        };
+        
+        const preferredVoiceName = voiceMap[speaker] || 'Google US English Female';
+        const voice = voices.find(v => v.name === preferredVoiceName || v.name.includes(preferredVoiceName));
+        return voice || this.selectedVoice;
     }
 
     async generateAudio(text, options = {}) {
@@ -72,7 +99,7 @@ class AudioGenerator {
                 const utterance = new SpeechSynthesisUtterance(text);
                 
                 // Configure speech parameters for clarity and natural sound
-                utterance.voice = this.selectedVoice;
+                utterance.voice = options.voice || this.selectedVoice;
                 utterance.rate = options.rate || 0.9; // Natural speaking pace
                 utterance.pitch = options.pitch || 1.0;
                 utterance.volume = options.volume || 1.0;
@@ -112,11 +139,17 @@ class AudioGenerator {
             // Stop any currently playing speech
             speechSynthesis.cancel();
             
+            // Wait a moment to ensure previous speech is fully stopped
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
             const utterance = await this.generateAudio(text, options);
             speechSynthesis.speak(utterance);
             
             return new Promise((resolve) => {
-                utterance.onend = resolve;
+                utterance.onend = () => {
+                    speechSynthesis.cancel();
+                    resolve();
+                };
             });
         } catch (error) {
             console.error('Error playing audio:', error);
@@ -187,14 +220,17 @@ class AudioGenerator {
         
         for (const line of dialogue) {
             try {
-                // Vary voice characteristics for different speakers
+                // Get different voice for each speaker
+                const speakerVoice = this.getVoiceForSpeaker(line.speaker);
                 const speakerOptions = {
-                    rate: options.rate || 0.8,
+                    rate: options.rate || 0.9,
                     pitch: this.getSpeakerPitch(line.speaker),
-                    volume: options.volume || 1.0
+                    volume: options.volume || 1.0,
+                    voice: speakerVoice
                 };
                 
                 const utterance = await this.generateAudio(line.text, speakerOptions);
+                utterance.voice = speakerVoice;
                 conversationAudio.push({
                     speaker: line.speaker,
                     utterance: utterance,
