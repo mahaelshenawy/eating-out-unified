@@ -22,15 +22,22 @@ class AudioGenerator {
     selectBestVoice() {
         const voices = speechSynthesis.getVoices();
         
-        // Prefer high-quality English voices
+        // Prefer high-quality natural English voices
         const preferredVoices = [
-            'Microsoft Zira - English (United States)',
-            'Microsoft David - English (United States)', 
+            'Google UK English Female',
             'Google US English',
+            'Google UK English Male',
+            'Microsoft Zira - English (United States)',
+            'Microsoft David - English (United States)',
+            'Microsoft Mark - English (United States)',
+            'Microsoft Zira Desktop - English (United States)',
             'Alex',
             'Samantha',
             'Karen',
-            'Daniel'
+            'Daniel',
+            'Moira',
+            'Fiona',
+            'Victoria'
         ];
 
         // Find the best available voice
@@ -49,6 +56,7 @@ class AudioGenerator {
         }
 
         console.log('Selected voice:', this.selectedVoice?.name || 'Default');
+        console.log('Available voices:', voices.filter(v => v.lang.startsWith('en')).map(v => v.name));
     }
 
     async generateAudio(text, options = {}) {
@@ -63,11 +71,12 @@ class AudioGenerator {
             try {
                 const utterance = new SpeechSynthesisUtterance(text);
                 
-                // Configure speech parameters for clarity
+                // Configure speech parameters for clarity and natural sound
                 utterance.voice = this.selectedVoice;
-                utterance.rate = options.rate || 0.8; // Slightly slower for clarity
+                utterance.rate = options.rate || 0.9; // Natural speaking pace
                 utterance.pitch = options.pitch || 1.0;
                 utterance.volume = options.volume || 1.0;
+                utterance.lang = 'en-US'; // Ensure English language
                 
                 // Create audio blob for caching
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
