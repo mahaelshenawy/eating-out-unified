@@ -147,25 +147,91 @@ class EatingOutApp {
             <div class="category-detail-header">
                 <h3><i class="${iconClass}"></i> ${categoryData.title}</h3>
             </div>
-            <div class="vocabulary-detail-grid">
-                ${categoryData.words.map(word => `
-                    <div class="vocabulary-detail-card">
-                        <div class="detail-word">
-                            ${word.word}
-                            <button class="audio-btn" onclick="app.playAudio('${word.word}')" style="margin-top: 0; padding: 0.5rem;">
-                                <i class="fas fa-volume-up"></i>
-                            </button>
-                        </div>
-                        ${word.image ? `<img src="${word.image}" alt="${word.word}" class="detail-image">` : ''}
-                        <div class="detail-definition"><strong>Definition:</strong> ${word.definition}</div>
-                        <div class="detail-example"><strong>Example:</strong> ${word.example}</div>
+            <div class="vocabulary-slider-container">
+                <div class="slider-wrapper">
+                    <div class="slider-track" id="sliderTrack">
+                        ${categoryData.words.map(word => `
+                            <div class="vocabulary-detail-card">
+                                <div class="detail-word">
+                                    ${word.word}
+                                    <button onclick="app.playAudio('${word.word}')">
+                                        <i class="fas fa-volume-up"></i>
+                                    </button>
+                                </div>
+                                ${word.image ? `<img src="${word.image}" alt="${word.word}" class="detail-image">` : ''}
+                                <div class="detail-definition"><strong>Definition:</strong> ${word.definition}</div>
+                                <div class="detail-example"><strong>Example:</strong> ${word.example}</div>
+                            </div>
+                        `).join('')}
                     </div>
-                `).join('')}
+                </div>
+                <div class="slider-controls">
+                    <button class="slider-btn" id="prevBtn" onclick="app.prevSlide()">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span id="slideCounter" style="font-weight: 600; color: #4a5568; min-width: 60px; text-align: center;">1 / ${categoryData.words.length}</span>
+                    <button class="slider-btn" id="nextBtn" onclick="app.nextSlide()">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="slider-indicator" id="sliderIndicator">
+                    ${categoryData.words.map((_, idx) => `
+                        <div class="indicator-dot ${idx === 0 ? 'active' : ''}" onclick="app.goToSlide(${idx})"></div>
+                    `).join('')}
+                </div>
             </div>
         `;
         
         detailContent.innerHTML = html;
+        
+        // Store slider state
+        this.currentSlideIndex = 0;
+        this.totalSlides = categoryData.words.length;
+        this.updateSliderPosition();
+        
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    updateSliderPosition() {
+        const sliderTrack = document.getElementById('sliderTrack');
+        const translateX = -this.currentSlideIndex * 100;
+        sliderTrack.style.transform = `translateX(${translateX}%)`;
+        
+        // Update counter
+        const counter = document.getElementById('slideCounter');
+        if (counter) counter.textContent = `${this.currentSlideIndex + 1} / ${this.totalSlides}`;
+        
+        // Update indicator dots
+        document.querySelectorAll('.indicator-dot').forEach((dot, idx) => {
+            dot.classList.toggle('active', idx === this.currentSlideIndex);
+        });
+        
+        // Update button states
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        if (prevBtn) prevBtn.disabled = this.currentSlideIndex === 0;
+        if (nextBtn) nextBtn.disabled = this.currentSlideIndex === this.totalSlides - 1;
+    }
+
+    nextSlide() {
+        if (this.currentSlideIndex < this.totalSlides - 1) {
+            this.currentSlideIndex++;
+            this.updateSliderPosition();
+        }
+    }
+
+    prevSlide() {
+        if (this.currentSlideIndex > 0) {
+            this.currentSlideIndex--;
+            this.updateSliderPosition();
+        }
+    }
+
+    goToSlide(index) {
+        if (index >= 0 && index < this.totalSlides) {
+            this.currentSlideIndex = index;
+            this.updateSliderPosition();
+        }
     }
 
     backToExplorer() {
