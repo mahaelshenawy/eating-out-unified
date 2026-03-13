@@ -1690,3 +1690,164 @@ body {
     }
 }
 
+
+/* Vocabulary Explorer Styles */
+.explorer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.explorer-card {
+    background: white;
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.explorer-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.explorer-card-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    color: #4a5568;
+    background: #f7fafc;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.explorer-card:hover .explorer-card-icon {
+    background: #edf2f7;
+    transform: scale(1.1);
+}
+
+.explorer-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.75rem;
+}
+
+.explorer-card-preview {
+    font-size: 0.95rem;
+    color: #718096;
+    line-height: 1.4;
+}
+
+/* Category Detail View */
+.category-detail-view {
+    background: white;
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.back-btn {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    color: #4a5568;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.back-btn:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+.category-detail-header {
+    margin-bottom: 2.5rem;
+    border-bottom: 2px solid #f7fafc;
+    padding-bottom: 1.5rem;
+}
+
+.category-detail-header h3 {
+    font-size: 2rem;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.vocabulary-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.vocabulary-detail-card {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 1.5rem;
+    border-left: 5px solid #667eea;
+    transition: all 0.2s ease;
+}
+
+.vocabulary-detail-card:hover {
+    background: #f1f5f9;
+    transform: scale(1.02);
+}
+
+.detail-word {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-definition {
+    color: #475569;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.detail-example {
+    font-style: italic;
+    color: #64748b;
+    background: white;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.detail-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}

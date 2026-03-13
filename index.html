@@ -25,17 +25,9 @@
 
         <!-- Navigation -->
         <nav class="navigation">
-            <button class="nav-btn active" data-section="restaurant-types">
-                <i class="fas fa-store"></i>
-                Restaurant Types
-            </button>
-            <button class="nav-btn" data-section="menu-vocabulary">
-                <i class="fas fa-book-open"></i>
-                Menu Vocabulary
-            </button>
-            <button class="nav-btn" data-section="general-vocabulary">
-                <i class="fas fa-comments"></i>
-                General Vocabulary
+            <button class="nav-btn active" data-section="vocabulary-explorer">
+                <i class="fas fa-th-large"></i>
+                Vocabulary Explorer
             </button>
             <button class="nav-btn" data-section="conversations">
                 <i class="fas fa-microphone"></i>
@@ -77,39 +69,23 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Restaurant Types Section -->
-            <section id="restaurant-types" class="content-section active">
+            <!-- Vocabulary Explorer Section -->
+            <section id="vocabulary-explorer" class="content-section active">
                 <div class="section-header">
-                    <h2><i class="fas fa-store"></i> Restaurant Types</h2>
-                    <p>Learn about different types of restaurants with images and audio pronunciation</p>
+                    <h2><i class="fas fa-th-large"></i> Vocabulary Explorer</h2>
+                    <p>Explore all restaurant-related vocabulary in one place</p>
                 </div>
                 
-                <div class="restaurant-grid">
-                    <!-- Restaurant type cards will be populated by JavaScript -->
+                <div class="explorer-grid" id="explorerGrid">
+                    <!-- Category cards will be populated by JavaScript -->
                 </div>
-            </section>
 
-            <!-- Menu Vocabulary Section -->
-            <section id="menu-vocabulary" class="content-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-book-open"></i> Menu Vocabulary</h2>
-                    <p>Explore food-related vocabulary organized by categories</p>
-                </div>
-                
-                <div class="vocabulary-categories">
-                    <!-- Menu vocabulary categories will be populated by JavaScript -->
-                </div>
-            </section>
-
-            <!-- General Vocabulary Section -->
-            <section id="general-vocabulary" class="content-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-comments"></i> General Restaurant Vocabulary</h2>
-                    <p>Learn about service, staff, and dining processes</p>
-                </div>
-                
-                <div class="vocabulary-categories">
-                    <!-- General vocabulary categories will be populated by JavaScript -->
+                <!-- Category Detail View (Initially Hidden) -->
+                <div id="categoryDetailView" class="category-detail-view" style="display: none;">
+                    <button class="back-btn" onclick="app.backToExplorer()">
+                        <i class="fas fa-arrow-left"></i> Back to Explorer
+                    </button>
+                    <div id="categoryDetailContent"></div>
                 </div>
             </section>
 
