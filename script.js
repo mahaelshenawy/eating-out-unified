@@ -2,7 +2,7 @@
 
 class EatingOutApp {
     constructor() {
-        this.currentSection = 'restaurant-types';
+        this.currentSection = 'vocabulary-explorer';
         this.currentConversation = null;
         this.currentQuestionIndex = 0;
         this.userAnswers = [];
@@ -21,9 +21,7 @@ class EatingOutApp {
 
     init() {
         this.setupNavigation();
-        this.renderRestaurantTypes();
-        this.renderMenuVocabulary();
-        this.renderGeneralVocabulary();
+        this.renderVocabularyExplorer();
         this.renderConversations();
         this.renderScenarios();
         this.renderMenuPlanning();
@@ -72,99 +70,107 @@ class EatingOutApp {
         activeBtn.classList.add('active');
     }
 
-    renderRestaurantTypes() {
-        const container = document.querySelector('.restaurant-grid');
+    renderVocabularyExplorer() {
+        const container = document.getElementById('explorerGrid');
         if (!container) return;
 
         let html = '';
         
-        Object.values(vocabularyData.restaurantTypes.categories).forEach(category => {
-            category.words.forEach(restaurant => {
-                html += `
-                    <div class="restaurant-card" onclick="app.showRestaurantDetails('${restaurant.word}')">
-                        ${restaurant.image ? `<img src="${restaurant.image}" alt="${restaurant.word}" class="restaurant-image">` : '<div class="restaurant-image"></div>'}
-                        <div class="restaurant-content">
-                            <h3 class="restaurant-title">${restaurant.word}</h3>
-                            <p class="restaurant-description">${restaurant.definition}</p>
-                            <div class="restaurant-example">${restaurant.example}</div>
-                            <button class="audio-btn" onclick="event.stopPropagation(); app.playAudio('${restaurant.word}')">
-                                <i class="fas fa-volume-up"></i> Listen
+        // Collect all categories from all main vocabulary groups
+        const allCategories = [];
+        Object.values(vocabularyData).forEach(group => {
+            if (group.categories) {
+                Object.entries(group.categories).forEach(([key, category]) => {
+                    allCategories.push({
+                        id: key,
+                        ...category
+                    });
+                });
+            }
+        });
+
+        allCategories.forEach(category => {
+            const previewWords = category.words.slice(0, 3).map(w => w.word).join(', ');
+            const iconClass = this.getCategoryIcon(category.id);
+            
+            html += `
+                <div class="explorer-card" onclick="app.showCategoryDetail('${category.id}')">
+                    <div class="explorer-card-icon">
+                        <i class="${iconClass}"></i>
+                    </div>
+                    <h3 class="explorer-card-title">${category.title}</h3>
+                    <p class="explorer-card-preview">${previewWords}</p>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+
+    getCategoryIcon(categoryId) {
+        const icons = {
+            fastFood: 'fas fa-hamburger',
+            casualDining: 'fas fa-utensils',
+            upscale: 'fas fa-wine-glass-alt',
+            courseTypes: 'fas fa-concierge-bell',
+            cookingMethods: 'fas fa-fire',
+            dietaryLabels: 'fas fa-tag',
+            menuStyles: 'fas fa-file-invoice-dollar',
+            staff: 'fas fa-users',
+            service: 'fas fa-concierge-bell',
+            payment: 'fas fa-credit-card'
+        };
+        return icons[categoryId] || 'fas fa-book';
+    }
+
+    showCategoryDetail(categoryId) {
+        const explorerGrid = document.getElementById('explorerGrid');
+        const detailView = document.getElementById('categoryDetailView');
+        const detailContent = document.getElementById('categoryDetailContent');
+        
+        // Find category data
+        let categoryData = null;
+        Object.values(vocabularyData).forEach(group => {
+            if (group.categories && group.categories[categoryId]) {
+                categoryData = group.categories[categoryId];
+            }
+        });
+
+        if (!categoryData) return;
+
+        explorerGrid.style.display = 'none';
+        detailView.style.display = 'block';
+        
+        const iconClass = this.getCategoryIcon(categoryId);
+        
+        let html = `
+            <div class="category-detail-header">
+                <h3><i class="${iconClass}"></i> ${categoryData.title}</h3>
+            </div>
+            <div class="vocabulary-detail-grid">
+                ${categoryData.words.map(word => `
+                    <div class="vocabulary-detail-card">
+                        <div class="detail-word">
+                            ${word.word}
+                            <button class="audio-btn" onclick="app.playAudio('${word.word}')" style="margin-top: 0; padding: 0.5rem;">
+                                <i class="fas fa-volume-up"></i>
                             </button>
                         </div>
+                        ${word.image ? `<img src="${word.image}" alt="${word.word}" class="detail-image">` : ''}
+                        <div class="detail-definition"><strong>Definition:</strong> ${word.definition}</div>
+                        <div class="detail-example"><strong>Example:</strong> ${word.example}</div>
                     </div>
-                `;
-            });
-        });
+                `).join('')}
+            </div>
+        `;
         
-        container.innerHTML = html;
+        detailContent.innerHTML = html;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    renderMenuVocabulary() {
-        const container = document.querySelector('#menu-vocabulary .vocabulary-categories');
-        if (!container) return;
-
-        let html = '';
-        
-        Object.values(vocabularyData.menuVocabulary.categories).forEach(category => {
-            html += `
-                <div class="category-card">
-                    <h3 class="category-title">
-                        <i class="fas fa-utensils"></i>
-                        ${category.title}
-                    </h3>
-                    <div class="vocabulary-list">
-                        ${category.words.map(word => `
-                            <div class="vocabulary-word" onclick="app.showVocabularyDetails('${word.word}', '${word.definition}', '${word.example}')">
-                                <div class="word-title">
-                                    ${word.word}
-                                    <button class="audio-btn" onclick="event.stopPropagation(); app.playAudio('${word.word}')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
-                                        <i class="fas fa-volume-up"></i>
-                                    </button>
-                                </div>
-                                <div class="word-definition">${word.definition}</div>
-                                <div class="word-example">${word.example}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        });
-        
-        container.innerHTML = html;
-    }
-
-    renderGeneralVocabulary() {
-        const container = document.querySelector('#general-vocabulary .vocabulary-categories');
-        if (!container) return;
-
-        let html = '';
-        
-        Object.values(vocabularyData.generalVocabulary.categories).forEach(category => {
-            html += `
-                <div class="category-card">
-                    <h3 class="category-title">
-                        <i class="fas fa-users"></i>
-                        ${category.title}
-                    </h3>
-                    <div class="vocabulary-list">
-                        ${category.words.map(word => `
-                            <div class="vocabulary-word" onclick="app.showVocabularyDetails('${word.word}', '${word.definition}', '${word.example}')">
-                                <div class="word-title">
-                                    ${word.word}
-                                    <button class="audio-btn" onclick="event.stopPropagation(); app.playAudio('${word.word}')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
-                                        <i class="fas fa-volume-up"></i>
-                                    </button>
-                                </div>
-                                <div class="word-definition">${word.definition}</div>
-                                <div class="word-example">${word.example}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        });
-        
-        container.innerHTML = html;
+    backToExplorer() {
+        document.getElementById('explorerGrid').style.display = 'grid';
+        document.getElementById('categoryDetailView').style.display = 'none';
     }
 
     renderConversations() {
@@ -797,7 +803,7 @@ class EatingOutApp {
 
     updateProgress() {
         // Calculate progress based on sections visited and activities completed
-        const sections = ['restaurant-types', 'menu-vocabulary', 'general-vocabulary', 'conversations', 'scenarios', 'menu-planning', 'pronunciation', 'activities', 'restaurant-detective', 'meal-times', 'menu-language-quiz', 'cheat-sheets'];
+        const sections = ['vocabulary-explorer', 'conversations', 'scenarios', 'menu-planning', 'pronunciation', 'activities', 'restaurant-detective', 'meal-times', 'menu-language-quiz', 'cheat-sheets'];
         const currentIndex = sections.indexOf(this.currentSection);
         const progress = ((currentIndex + 1) / sections.length) * 100;
         
